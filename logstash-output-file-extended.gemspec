@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
 
-  s.name            = 'logstash-output-file'
+  s.name            = 'logstash-output-file-extended'
   s.version         = '4.3.0'
   s.licenses        = ['Apache License (2.0)']
   s.summary         = "Writes events to files on disk"

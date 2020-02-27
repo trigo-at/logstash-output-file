@@ -16,12 +16,12 @@ require "zlib"
 #    codec => line { format => "custom format: %{message}"}
 #  }
 # }
-class LogStash::Outputs::File < LogStash::Outputs::Base
+class LogStash::Outputs::FileExtended < LogStash::Outputs::Base
   concurrency :shared
 
   FIELD_REF = /%\{[^}]+\}/
 
-  config_name "file"
+  config_name "file_extended"
 
   attr_reader :failure_path
 

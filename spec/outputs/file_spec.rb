@@ -12,7 +12,7 @@ require "fileutils"
 require "flores/random"
 require "insist"
 
-describe LogStash::Outputs::File do
+describe LogStash::Outputs::FileExtended do
   describe "ship lots of events to a file" do
     tmp_file = Tempfile.new('logstash-spec-output-file')
     event_count = 10000 + rand(500)
@@ -26,7 +26,7 @@ describe LogStash::Outputs::File do
       }
     }
     output {
-      file {
+      file_extended {
         path => "#{tmp_file.path}"
       }
     }
@@ -61,7 +61,7 @@ describe LogStash::Outputs::File do
           }
         }
         output {
-          file {
+          file_extended {
             path => "#{tmp_file.path}"
             gzip => true
           }
@@ -98,7 +98,7 @@ describe LogStash::Outputs::File do
         }
       }
       output {
-        file {
+        file_extended {
           path => "#{tmp_file.path}"
           file_rotation_size => #{file_rotation_size}
         }
@@ -141,7 +141,7 @@ describe LogStash::Outputs::File do
         }
       }
       output {
-        file {
+        file_extended {
           path => "#{tmp_file.path}"
           file_rotation_size => #{file_rotation_size}
         }
@@ -191,7 +191,7 @@ describe LogStash::Outputs::File do
         }
       }
       output {
-        file {
+        file_extended {
           path => "#{tmp_file.path}"
           file_rotation_size => #{file_rotation_size}
           max_file_rotations => #{max_file_rotations}
@@ -215,7 +215,7 @@ describe LogStash::Outputs::File do
 
   describe "#register" do
     let(:path) { '/%{name}' }
-    let(:output) { LogStash::Outputs::File.new({ "path" => path }) }
+    let(:output) { LogStash::Outputs::FileExtended.new({ "path" => path }) }
 
     it 'doesnt allow the path to start with a dynamic string' do
       expect { output.register }.to raise_error(LogStash::ConfigurationError)
@@ -237,17 +237,17 @@ describe LogStash::Outputs::File do
 
     it 'allow to have dynamic part after the file root' do
       path = '/tmp/%{name}'
-      output = LogStash::Outputs::File.new({ "path" => path })
+      output = LogStash::Outputs::FileExtended.new({ "path" => path })
       expect { output.register }.not_to raise_error
     end
 
     it 'does not allow negative "file_rotation_size"' do
-      output = LogStash::Outputs::File.new({ "path" => '/tmp/%{name}', "file_rotation_size" => -1 })
+      output = LogStash::Outputs::FileExtended.new({ "path" => '/tmp/%{name}', "file_rotation_size" => -1 })
       expect { output.register }.to raise_error(LogStash::ConfigurationError)
     end
 
     it 'does not allow negative "max_file_rotations"' do
-      output = LogStash::Outputs::File.new({ "path" => '/tmp/%{name}', "max_file_rotations" => -1 })
+      output = LogStash::Outputs::FileExtended.new({ "path" => '/tmp/%{name}', "max_file_rotations" => -1 })
       expect { output.register }.to raise_error(LogStash::ConfigurationError)
     end
   end
@@ -263,7 +263,7 @@ describe LogStash::Outputs::File do
           "flush_interval" => 0
         }
       }
-      let(:output) { LogStash::Outputs::File.new(config) }
+      let(:output) { LogStash::Outputs::FileExtended.new(config) }
 
       let(:count) { Flores::Random.integer(1..10) }
       let(:events) do
@@ -306,7 +306,7 @@ describe LogStash::Outputs::File do
       end
 
       it "should recreate the required file if deleted" do
-        output = LogStash::Outputs::File.new(config)
+        output = LogStash::Outputs::FileExtended.new(config)
         output.register
 
         10.times do |i|
@@ -329,7 +329,7 @@ describe LogStash::Outputs::File do
         end
 
         it "should append the events to the filename_failure location" do
-          output = LogStash::Outputs::File.new(config)
+          output = LogStash::Outputs::FileExtended.new(config)
           output.register
 
           10.times do |i|
@@ -369,7 +369,7 @@ describe LogStash::Outputs::File do
             bad_event.set("error", outside_path)
 
 
-            output = LogStash::Outputs::File.new(config)
+            output = LogStash::Outputs::FileExtended.new(config)
             output.register
             output.multi_receive([bad_event])
 
@@ -385,7 +385,7 @@ describe LogStash::Outputs::File do
             encoded_once = "%2E%2E%2ftest"  # ../test
             encoded_twice = "%252E%252E%252F%252E%252E%252Ftest" # ../../test
 
-            output = LogStash::Outputs::File.new({ "path" =>  "/#{path}/%{error}"})
+            output = LogStash::Outputs::FileExtended.new({ "path" =>  "/#{path}/%{error}"})
             output.register
 
             bad_event.set('error', encoded_once)
@@ -401,7 +401,7 @@ describe LogStash::Outputs::File do
 
         it 'doesnt write outside the file if the path is double escaped' do
           Stud::Temporary.directory('filepath_error') do |path|
-            output = LogStash::Outputs::File.new({ "path" =>  "/#{path}/%{error}"})
+            output = LogStash::Outputs::FileExtended.new({ "path" =>  "/#{path}/%{error}"})
             output.register
 
             bad_event.set('error', '../..//test')
@@ -420,7 +420,7 @@ describe LogStash::Outputs::File do
 
           Stud::Temporary.directory do |path|
             config = { "path" => "#{path}/%{error}" }
-            output = LogStash::Outputs::File.new(config)
+            output = LogStash::Outputs::FileExtended.new(config)
             output.register
             output.multi_receive([good_event])
 
@@ -439,7 +439,7 @@ describe LogStash::Outputs::File do
             expected_path = "#{path}/failed_syslog-#{t.strftime("%Y-%m-%d")}"
 
             config = { "path" => dynamic_path }
-            output = LogStash::Outputs::File.new(config)
+            output = LogStash::Outputs::FileExtended.new(config)
             output.register
             output.multi_receive([good_event])
 
@@ -461,7 +461,7 @@ describe LogStash::Outputs::File do
 
             config = { "path" => dynamic_path }
 
-            output = LogStash::Outputs::File.new(config)
+            output = LogStash::Outputs::FileExtended.new(config)
             output.register
             output.multi_receive([good_event])
 
@@ -476,7 +476,7 @@ describe LogStash::Outputs::File do
 
           Stud::Temporary.directory do |path|
             config = { "path" => "#{path}/%{error}" }
-            output = LogStash::Outputs::File.new(config)
+            output = LogStash::Outputs::FileExtended.new(config)
             output.register
             output.multi_receive([good_event])
 
@@ -495,7 +495,7 @@ describe LogStash::Outputs::File do
 
           Stud::Temporary.directory do |path|
             config = { "path" => "#{path}/output.txt" }
-            output = LogStash::Outputs::File.new(config)
+            output = LogStash::Outputs::FileExtended.new(config)
             output.register
             output.multi_receive([good_event])
             good_file = File.join(path, 'output.txt')
@@ -515,7 +515,7 @@ describe LogStash::Outputs::File do
 
           Stud::Temporary.directory do |path|
             config = { "path" => "#{path}/output.txt" }
-            output = LogStash::Outputs::File.new(config.merge("codec" => LogStash::Codecs::Line.new({ "format" => "Custom format: %{message}"})))
+            output = LogStash::Outputs::FileExtended.new(config.merge("codec" => LogStash::Codecs::Line.new({ "format" => "Custom format: %{message}"})))
             output.register
             output.multi_receive([good_event])
             good_file = File.join(path, 'output.txt')
@@ -539,7 +539,7 @@ describe LogStash::Outputs::File do
               "dir_mode"  => 0751,
               "file_mode" => 0610,
             }
-            output = LogStash::Outputs::File.new(config)
+            output = LogStash::Outputs::FileExtended.new(config)
             output.register
             output.multi_receive([good_event])
             good_file = File.join(path, 'is/nested/output.txt')
@@ -578,7 +578,7 @@ describe LogStash::Outputs::File do
             "flush_interval" => flush_interval
         }
       }
-      let(:output) { LogStash::Outputs::File.new(config) }
+      let(:output) { LogStash::Outputs::FileExtended.new(config) }
 
       before(:each) { output.register }
       after(:each) do
