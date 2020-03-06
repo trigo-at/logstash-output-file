@@ -1,6 +1,6 @@
 # encoding: UTF-8
 require "logstash/devutils/rspec/spec_helper"
-require "logstash/outputs/file"
+require "logstash/outputs/file_extended"
 require "logstash/codecs/line"
 require "logstash/codecs/json_lines"
 require "logstash/event"

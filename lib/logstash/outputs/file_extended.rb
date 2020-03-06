@@ -83,7 +83,7 @@ class LogStash::Outputs::FileExtended < LogStash::Outputs::Base
   # The current rotation number is evaluated dyamically by scanning the directory,
   # use either `max_file_rotation` or a date based file name pattern to avoid
   # performance issues due to large amount of files to be moved.
-  # Files ending with .0.gz .1.gz ... will be deteced automatially to intigrate with
+  # Files ending with .0.gz .1.gz ... will be deteced automatically to integrate with
   # log compression performed by other tools
   #
   # If set to `file_rotation_size => 0` no rotation will be performed
@@ -92,7 +92,7 @@ class LogStash::Outputs::FileExtended < LogStash::Outputs::Base
   # Max number of rotations to keep
   #
   # Set the maximum number of rotation for each logfile to keep. The deletion
-  # of out-dated filers is performed after each rotation.
+  # of out-dated files is performed after each rotation.
   # Example: `"max_file_rotations" => 3 will allow up to `4` files
   # `/path/to/logfile`, `/path/to/logfile.0`,`/path/to/logfile.1`,`/path/to/logfile.2`,
   #
